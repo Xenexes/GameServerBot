@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/services/[0-9]+/gameservers/games/players"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "response-GET-services-id-gameservers-games-players.200.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+### ===========================================
+### Health Check (public endpoint)
+### ===========================================
+
+### Health check
+GET {{baseUrl}}/actuator/health
+Accept: application/json
+
+### ===========================================
+### Game Server API (requires ADMIN role)
+### ===========================================
+
+### Get all game servers
+GET {{baseUrl}}/api/game-servers
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+### Get game server by ID
+GET {{baseUrl}}/api/game-servers/{{serverId}}
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+### Create a new game server
+POST {{baseUrl}}/api/game-servers
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+{
+  "name": "My Game Server",
+  "nitradoId": 12345678
+}
+
+### Start a game server
+POST {{baseUrl}}/api/game-servers/{{serverId}}/start
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+### Stop a game server (without message)
+POST {{baseUrl}}/api/game-servers/{{serverId}}/stop
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+### Stop a game server (with message)
+POST {{baseUrl}}/api/game-servers/{{serverId}}/stop
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+{
+  "message": "Server maintenance - back in 30 minutes"
+}
+
+### Restart a game server (without message)
+POST {{baseUrl}}/api/game-servers/{{serverId}}/restart
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+### Restart a game server (with message)
+POST {{baseUrl}}/api/game-servers/{{serverId}}/restart
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+{
+  "message": "Server restart for updates"
+}
+
+### ===========================================
+### Cron Job Endpoints (requires ADMIN or CRON_JOB role)
+### ===========================================
+
+### Trigger game server sync (as cron-job user)
+POST {{baseUrl}}/api/jobs/sync-servers
+Accept: application/json
+Authorization: Basic {{cronJobUsername}} {{cronJobPassword}}
+
+### Trigger game server sync (as admin)
+POST {{baseUrl}}/api/jobs/sync-servers
+Accept: application/json
+Authorization: Basic {{adminUsername}} {{adminPassword}}
+
+### Update Discord presence (as cron-job user)
+POST {{baseUrl}}/api/jobs/update-discord-presence
+Accept: application/json
+Authorization: Basic {{cronJobUsername}} {{cronJobPassword}}

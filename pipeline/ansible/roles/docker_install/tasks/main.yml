@@ -1,0 +1,58 @@
+---
+- name: "Docker | Create keyrings directory"
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: "Docker | Download Docker GPG key"
+  get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: "Docker | Get OS codename"
+  command: bash -c ". /etc/os-release && echo $VERSION_CODENAME"
+  register: os_codename
+  changed_when: false
+
+- name: "Docker | Add Docker apt repository"
+  copy:
+    dest: /etc/apt/sources.list.d/docker.list
+    content: |
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ os_codename.stdout | trim }} stable
+    mode: "0644"
+
+- name: "Docker | Update apt cache"
+  apt:
+    update_cache: true
+
+- name: "Docker | Install Docker CE and plugins"
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: "Docker | Enable Docker service"
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: "Docker | Create .docker config directory"
+  file:
+    path: /root/.docker
+    state: directory
+    mode: "0700"
+
+- name: "Docker | Configure registry authentication"
+  copy:
+    dest: /root/.docker/config.json
+    content: >-
+      {{ {'auths': {docker_registry: {'auth': (docker_registry_username + ':' + docker_registry_password) | b64encode}}} | to_json(indent=2) }}
+    mode: "0600"
+  no_log: true

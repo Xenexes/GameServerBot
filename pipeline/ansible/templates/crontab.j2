@@ -1,0 +1,3 @@
+# 7-field format: second minute hour day month weekday year
+{{ cron_sync_servers_interval }} curl -sf -X POST -u game-server-bot-job:${JOB_PASSWORD} http://game-server-bot:8080/api/jobs/sync-servers
+{{ cron_update_discord_presence_interval }} curl -sf -X POST -u game-server-bot-job:${JOB_PASSWORD} http://game-server-bot:8080/api/jobs/update-discord-presence

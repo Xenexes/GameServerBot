@@ -1,0 +1,33 @@
+---
+# Master playbook — run with:
+#   ansible-playbook pipeline/ansible/site.yml -e @pipeline/ansible/vars/secrets.yml
+#
+# Optional overrides:
+#   -e version_bump_type=minor   (patch | minor | major)
+
+- name: "Play 1: Build, version bump, and publish images"
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - build
+    - version
+    - docker_publish
+
+- name: "Play 2: Provision LXC via Terraform"
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - terraform
+
+- name: "Play 3: Configure LXC and deploy application"
+  hosts: lxc_targets
+  gather_facts: true
+  roles:
+    - base
+    - docker_install
+    - app_deploy
+    - hawser

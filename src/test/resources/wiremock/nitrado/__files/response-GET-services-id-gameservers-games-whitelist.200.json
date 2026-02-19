@@ -1,0 +1,17 @@
+{
+  "status": "success",
+  "data": {
+    "whitelist": [
+      {
+        "name": "Player1",
+        "id": "76561198000000001",
+        "id_type": "steam-id"
+      },
+      {
+        "name": "Player2",
+        "id": "76561198000000002",
+        "id_type": "steam-id"
+      }
+    ]
+  }
+}

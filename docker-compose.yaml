@@ -1,0 +1,19 @@
+services:
+  gameserverbot-wiremock-api-nitrado:
+    image: wiremock/wiremock:3.13.1
+    container_name: gameserverbot-wiremock-api-nitrado
+    ports:
+      - "50002:8080"
+    volumes:
+      - ./src/test/resources/wiremock/nitrado:/home/wiremock:ro
+    command: "--global-response-templating --verbose"
+
+  gameserverbot-cron:
+    image: hectorm/supercronic
+    container_name: gameserverbot-cron
+    environment:
+      JOB_PASSWORD: ${CRON_JOB_PASSWORD}
+    volumes:
+      - ./pipeline/cron/crontab.local:/etc/crontab:ro
+    depends_on:
+      - gameserverbot-wiremock-api-nitrado

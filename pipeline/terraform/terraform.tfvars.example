@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars (gitignored) and fill in values.
+# These are managed by Ansible via community.general.terraform — you typically
+# do not need to run terraform directly. Fill in for manual use only.
+
+proxmox_api_url          = "https://pve.example.com:8006/api2/json"
+proxmox_api_token_id     = "root@pam!terraform"
+proxmox_api_token_secret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+proxmox_tls_insecure     = true
+
+target_node = "pve"
+vmid        = 200
+hostname    = "game-server-bot"
+
+template    = "local:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst"
+ip_address  = "192.168.1.50/24"
+gateway     = "192.168.1.1"
+bridge      = "vmbr0"
+storage     = "local-lvm"
+disk_size   = 8
+cores       = 2
+memory      = 1024
+
+ssh_public_key       = "ssh-ed25519 AAAA... user@host"
+ssh_private_key_path = "~/.ssh/id_ed25519"

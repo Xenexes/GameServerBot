@@ -1,3 +1,5 @@
 /gradlew text eol=lf
 *.bat text eol=crlf
 *.jar binary
+*.local text eol=lf
+*.j2 text eol=lf

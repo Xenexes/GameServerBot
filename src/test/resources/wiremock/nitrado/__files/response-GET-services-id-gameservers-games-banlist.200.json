@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "data": {
+    "banlist": [
+      {
+        "name": "BannedPlayer1",
+        "id": "76561198000000003",
+        "id_type": "steam-id"
+      }
+    ]
+  }
+}

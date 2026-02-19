@@ -1,0 +1,43 @@
+---
+- name: "Version | Read version from build.gradle.kts"
+  command: grep '^version = ' {{ playbook_dir }}/../../build.gradle.kts
+  register: gradle_version_line
+  changed_when: false
+
+- name: "Version | Parse version string"
+  set_fact:
+    # Extracts from: version = "1.2.3" or version = "1.2.3-SNAPSHOT"
+    app_version_raw: "{{ gradle_version_line.stdout | regex_search('\"(.+)\"', '\\1') | first }}"
+
+- name: "Version | Strip SNAPSHOT suffix and set tag"
+  set_fact:
+    app_version: "{{ app_version_raw | regex_replace('-SNAPSHOT$', '') }}"
+    app_version_tag: "v{{ app_version_raw | regex_replace('-SNAPSHOT$', '') }}"
+
+- name: "Version | Check if tag already exists"
+  command: git tag -l {{ app_version_tag }}
+  args:
+    chdir: "{{ playbook_dir }}/../../"
+  register: existing_tag
+  changed_when: false
+
+- name: "Version | Create annotated git tag"
+  command: 'git tag -a {{ app_version_tag }} -m "Release {{ app_version_tag }}"'
+  args:
+    chdir: "{{ playbook_dir }}/../../"
+  when: existing_tag.stdout == ""
+  changed_when: true
+
+- name: "Version | Push tag to remote"
+  command: git push origin {{ app_version_tag }}
+  args:
+    chdir: "{{ playbook_dir }}/../../"
+  environment:
+    GIT_SSH_COMMAND: "ssh -i {{ lxc_ssh_private_key }} -o StrictHostKeyChecking=no -o IdentitiesOnly=yes"
+  when: existing_tag.stdout == ""
+  changed_when: true
+
+- name: "Version | Tag exists — deploying existing version"
+  debug:
+    msg: "Tag {{ app_version_tag }} already exists — skipping tag creation, deploying version {{ app_version }}"
+  when: existing_tag.stdout != ""

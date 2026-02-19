@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "data": {
+    "games": [
+      {
+        "id": "mc",
+        "folder_short": "mc",
+        "steam_id": null,
+        "has_steam_game": false,
+        "name": "Minecraft Vanilla",
+        "active": true,
+        "installed": true
+      },
+      {
+        "id": "sevendtd",
+        "folder_short": "sevendtd",
+        "steam_id": "251570",
+        "has_steam_game": "unknown",
+        "name": "7 Days To Die",
+        "active": false,
+        "installed": false
+      }
+    ]
+  }
+}

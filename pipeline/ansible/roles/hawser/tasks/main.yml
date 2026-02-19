@@ -1,0 +1,12 @@
+---
+- name: "Hawser | Verify container is running"
+  command: docker inspect -f '{{ "{{.State.Running}}" }}' hawser
+  register: hawser_state
+  until: hawser_state.stdout == 'true'
+  retries: 5
+  delay: 5
+  changed_when: false
+
+- name: "Hawser | Report status"
+  debug:
+    msg: "Hawser (Dockhand agent) running on port 2376. Prerequisite: Dockhand server configured."

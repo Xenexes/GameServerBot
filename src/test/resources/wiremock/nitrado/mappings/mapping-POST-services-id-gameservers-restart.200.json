@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/services/[0-9]+/gameservers/restart"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "response-GET-services-id-gameservers-restart.200.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

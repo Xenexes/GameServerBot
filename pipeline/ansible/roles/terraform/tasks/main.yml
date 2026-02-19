@@ -1,0 +1,89 @@
+---
+- name: "Terraform | Destroy existing LXC (no-op on first run)"
+  community.general.terraform:
+    project_path: "{{ terraform_dir }}"
+    state: absent
+    force_init: true
+    variables:
+      vmid: "{{ lxc_vmid | string }}"
+      hostname: "{{ lxc_hostname | default(app_name) }}"
+      target_node: "{{ proxmox_node }}"
+      template: "{{ lxc_template }}"
+      root_password: "{{ lxc_root_password }}"
+      ssh_public_key: "{{ lxc_ssh_public_key_content }}"
+      ip_address: "{{ lxc_ip_cidr }}"
+      gateway: "{{ lxc_gateway }}"
+      storage: "{{ proxmox_storage }}"
+      bridge: "{{ proxmox_bridge }}"
+      cores: "{{ lxc_cores | string }}"
+      memory: "{{ lxc_memory_mb | string }}"
+      disk_size: "{{ lxc_disk_gb | string }}"
+      ssh_private_key_path: "{{ lxc_ssh_private_key }}"
+  environment:
+    TF_VAR_proxmox_api_url: "{{ proxmox_api_url }}"
+    TF_VAR_proxmox_api_token_id: "{{ proxmox_api_token_id }}"
+    TF_VAR_proxmox_api_token_secret: "{{ proxmox_api_token_secret }}"
+  failed_when: false
+
+- name: "Terraform | Wait 5s after destroy"
+  pause:
+    seconds: 5
+
+- name: "Terraform | Create new LXC"
+  community.general.terraform:
+    project_path: "{{ terraform_dir }}"
+    state: present
+    force_init: true
+    variables:
+      vmid: "{{ lxc_vmid | string }}"
+      hostname: "{{ lxc_hostname | default(app_name) }}"
+      target_node: "{{ proxmox_node }}"
+      template: "{{ lxc_template }}"
+      root_password: "{{ lxc_root_password }}"
+      ssh_public_key: "{{ lxc_ssh_public_key_content }}"
+      ip_address: "{{ lxc_ip_cidr }}"
+      gateway: "{{ lxc_gateway }}"
+      storage: "{{ proxmox_storage }}"
+      bridge: "{{ proxmox_bridge }}"
+      cores: "{{ lxc_cores | string }}"
+      memory: "{{ lxc_memory_mb | string }}"
+      disk_size: "{{ lxc_disk_gb | string }}"
+      ssh_private_key_path: "{{ lxc_ssh_private_key }}"
+  environment:
+    TF_VAR_proxmox_api_url: "{{ proxmox_api_url }}"
+    TF_VAR_proxmox_api_token_id: "{{ proxmox_api_token_id }}"
+    TF_VAR_proxmox_api_token_secret: "{{ proxmox_api_token_secret }}"
+  register: tf_result
+
+- name: "Terraform | Add LXC to dynamic inventory"
+  add_host:
+    name: "{{ tf_result.outputs.container_ip_address.value }}"
+    groups: lxc_targets
+    ansible_user: "{{ lxc_ssh_user }}"
+    ansible_ssh_private_key_file: "{{ lxc_ssh_private_key }}"
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+    # Pass secrets to Play 3 as hostvars (hostvars take precedence over group_vars)
+    app_version: "{{ app_version }}"
+    docker_registry: "{{ docker_registry }}"
+    docker_registry_username: "{{ docker_registry_username }}"
+    docker_registry_password: "{{ docker_registry_password }}"
+    admin_password: "{{ admin_password }}"
+    cron_job_password: "{{ cron_job_password }}"
+    nitrado_api_token: "{{ nitrado_api_token }}"
+    nitrado_server_id: "{{ nitrado_server_id }}"
+    discord_enabled: "{{ discord_enabled }}"
+    discord_bot_token: "{{ discord_bot_token }}"
+    discord_guild_id: "{{ discord_guild_id }}"
+    discord_notification_channel_id: "{{ discord_notification_channel_id }}"
+    discord_admin_role_id: "{{ discord_admin_role_id }}"
+    discord_allowed_role_id: "{{ discord_allowed_role_id }}"
+    discord_webhook_url: "{{ discord_webhook_url }}"
+    hawser_token: "{{ hawser_token }}"
+
+- name: "Terraform | Wait for SSH"
+  wait_for:
+    host: "{{ tf_result.outputs.container_ip_address.value }}"
+    port: 22
+    delay: 10
+    timeout: 180
+    state: started

@@ -1,0 +1,3 @@
+# 7-field format: second minute hour day month weekday year
+*/30 * * * * * * curl -f -X POST -u game-server-bot-job:${JOB_PASSWORD} http://host.docker.internal:8080/api/jobs/sync-servers
+*/15 * * * * * * curl -f -X POST -u game-server-bot-job:${JOB_PASSWORD} http://host.docker.internal:8080/api/jobs/update-discord-presence

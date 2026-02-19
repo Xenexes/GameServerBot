@@ -1,0 +1,9 @@
+spring:
+  docker:
+    compose:
+      enabled: true
+
+gameserverbot:
+  nitrado:
+    base-url: "http://localhost:50002"
+    api-token: "test-api-token"

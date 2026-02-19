@@ -1,0 +1,26 @@
+---
+# Jib builds and pushes directly to the registry without a local Docker daemon.
+# make publish reads VERSION from build.gradle.kts → registry/game-server-bot:1.2.3
+- name: "Publish | Build and push app image via Jib (make publish)"
+  command: make publish
+  args:
+    chdir: "{{ playbook_dir }}/../../"
+  environment:
+    DOCKER_REGISTRY: "{{ docker_registry }}"
+    DOCKER_REGISTRY_USERNAME: "{{ docker_registry_username }}"
+    DOCKER_REGISTRY_PASSWORD: "{{ docker_registry_password }}"
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  changed_when: true
+  no_log: true
+  ignore_errors: true
+  register: publish_result
+
+- name: "Publish | Show publish output"
+  debug:
+    msg: "{{ publish_result.stdout_lines + publish_result.stderr_lines }}"
+
+- name: "Publish | Fail if publish failed"
+  fail:
+    msg: "make publish exited with rc={{ publish_result.rc }}"
+  when: publish_result.rc != 0
+

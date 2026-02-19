@@ -1,0 +1,10 @@
+---
+app_name: game-server-bot
+app_image_name: game-server-bot
+lxc_app_dir: /opt/game-server-bot
+lxc_ssh_user: root
+version_bump_type: patch              # patch | minor | major
+terraform_dir: "{{ playbook_dir }}/../terraform"
+cron_sync_servers_interval: "*/30 * * * * * *"
+cron_update_discord_presence_interval: "*/15 * * * * * *"
+discord_enabled: "false"

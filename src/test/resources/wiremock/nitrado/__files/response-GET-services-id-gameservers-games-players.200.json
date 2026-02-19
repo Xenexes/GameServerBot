@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "data": {
+    "players": [
+      {
+        "name": "Sepp",
+        "id": "6f211968-a5d4-440a-b5ba-1604da032404",
+        "id_type": "mcuuid",
+        "online": "false"
+      },
+      {
+        "name": "Josef",
+        "id": "57ec24da-d20a-45c1-a942-fb99c49c6a2e",
+        "id_type": "mcuuid",
+        "online": "true"
+      }
+    ]
+  }
+}

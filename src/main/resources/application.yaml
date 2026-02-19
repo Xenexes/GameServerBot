@@ -1,3 +1,67 @@
 spring:
   application:
     name: GameServerBot
+  docker:
+    compose:
+      enabled: false
+      skip:
+        in-tests: true
+
+server:
+  port: 8080
+
+gameserverbot:
+  security:
+    basic-auth:
+      admin:
+        username: admin
+        password: ${ADMIN_PASSWORD:}
+        roles: [ADMIN]
+      cron-job:
+        username: game-server-bot-job
+        password: ${CRON_JOB_PASSWORD:}
+        roles: [CRON_JOB]
+  nitrado:
+    base-url: ${NITRADO_API_BASE_URL:https://api.nitrado.net}
+    api-token: ${NITRADO_API_TOKEN:}
+    server-id: ${NITRADO_SERVER_ID:}
+    call-timeout: 30s
+    connect-timeout: 10s
+    resilience:
+      circuit-breaker:
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      rate-limiter:
+        limit-for-period: 10
+        limit-refresh-period: 1s
+        timeout-duration: 5s
+      retry:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-on-server-errors: true
+    cache:
+      server-status-ttl: 30s
+      services-ttl: 5m
+      game-list-ttl: 5m
+      players-ttl: 30s
+      player-list-ttl: 1m
+      maximum-size: 100
+  discord:
+    enabled: ${DISCORD_ENABLED:false}
+    bot-token: ${DISCORD_BOT_TOKEN:}
+    guild-id: ${DISCORD_GUILD_ID:}
+    notification-channel-id: ${DISCORD_NOTIFICATION_CHANNEL_ID:}
+    admin-role-id: ${DISCORD_ADMIN_ROLE_ID:}
+    allowed-role-id: ${DISCORD_ALLOWED_ROLE_ID:}
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg %X%n"
+  level:
+    de.xenexes.gameserverbot: INFO
+    io.ktor.client: INFO
+    io.github.resilience4j: INFO

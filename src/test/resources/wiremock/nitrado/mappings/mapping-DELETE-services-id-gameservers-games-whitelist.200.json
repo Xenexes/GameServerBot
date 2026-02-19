@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/services/[0-9]+/gameservers/games/whitelist"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "response-DELETE-whitelist.200.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

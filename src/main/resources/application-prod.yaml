@@ -1,0 +1,3 @@
+gameserverbot:
+    discord:
+        enabled: true

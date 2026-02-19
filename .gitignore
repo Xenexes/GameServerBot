@@ -1,5 +1,8 @@
+### Spring Boot ###
 HELP.md
-.gradle
+
+### Gradle ###
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -18,7 +21,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -37,4 +40,28 @@ out/
 .vscode/
 
 ### Kotlin ###
-.kotlin
+.kotlin/
+
+### IntelliJ HTTP Client ###
+doc/http/http-client.private.env.json
+
+### Environment ###
+.env
+.env.local
+*.env.local
+
+### Logs ###
+logs/
+*.log
+
+### Test Reports ###
+test-results/
+
+### Pipeline secrets ###
+pipeline/ansible/vars/secrets.yml
+pipeline/terraform/terraform.tfvars
+pipeline/terraform/*.auto.tfvars
+pipeline/terraform/.terraform/
+pipeline/terraform/.terraform.lock.hcl
+pipeline/terraform/*.tfstate
+pipeline/terraform/*.tfstate.*

@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/services"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "response-GET-service-list.200.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

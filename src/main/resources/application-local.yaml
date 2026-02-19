@@ -1,0 +1,11 @@
+gameserverbot:
+  nitrado:
+    api-token: ${NITRADO_API_TOKEN:}
+
+logging:
+    pattern:
+        console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg %X%n"
+    level:
+        de.xenexes.gameserverbot: DEBUG
+        io.ktor.client: DEBUG
+        io.github.resilience4j: INFO
