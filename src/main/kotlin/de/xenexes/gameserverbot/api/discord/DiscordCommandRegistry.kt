@@ -2,11 +2,13 @@
 
 package de.xenexes.gameserverbot.api.discord
 
+import arrow.core.raise.recover
 import de.xenexes.gameserverbot.domain.discord.DiscordInteraction
 import de.xenexes.gameserverbot.domain.discord.DiscordPermissionService
 import de.xenexes.gameserverbot.domain.gameserver.GameServer
 import de.xenexes.gameserverbot.domain.gameserver.GameServerFailure
 import de.xenexes.gameserverbot.domain.gameserver.GameServerStatus
+import de.xenexes.gameserverbot.domain.player.PlayerFailure
 import de.xenexes.gameserverbot.domain.player.PlayerIdentifier
 import de.xenexes.gameserverbot.domain.shared.UserContext
 import de.xenexes.gameserverbot.usecases.GameServerUseCases
@@ -260,7 +262,13 @@ class DiscordCommandRegistry(
             append("**Player Lists for ${server.name}**\n\n")
 
             whitelistResult.fold(
-                { append("❌ Whitelist: Error fetching whitelist\n") },
+                { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        append("📝 **Whitelist:** Not supported for this game\n")
+                    } else {
+                        append("❌ Whitelist: Error fetching whitelist\n")
+                    }
+                },
                 { playerList ->
                     if (playerList.entries.isEmpty()) {
                         append("📝 **Whitelist:** Empty\n")
@@ -272,7 +280,13 @@ class DiscordCommandRegistry(
             )
 
             banlistResult.fold(
-                { append("❌ Banlist: Error fetching banlist\n") },
+                { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        append("🔨 **Banlist:** Not supported for this game\n")
+                    } else {
+                        append("❌ Banlist: Error fetching banlist\n")
+                    }
+                },
                 { playerList ->
                     if (playerList.entries.isEmpty()) {
                         append("🔨 **Banlist:** Empty\n")
@@ -295,15 +309,23 @@ class DiscordCommandRegistry(
 
         return when (subcommand) {
             "list" -> {
-                val playerList = playerUseCases.getWhitelist(server.id).bind()
-                if (playerList.entries.isEmpty()) {
-                    "📝 **Whitelist for ${server.name}:** Empty"
-                } else {
-                    val entries =
-                        playerList.entries.joinToString("\n") { entry ->
-                            "- **${entry.name}** (`${entry.identifier.value}`)"
-                        }
-                    "📝 **Whitelist for ${server.name}** (${playerList.entries.size} entries):\n$entries"
+                recover({
+                    val playerList = playerUseCases.getWhitelist(server.id).bind()
+                    if (playerList.entries.isEmpty()) {
+                        "📝 **Whitelist for ${server.name}:** Empty"
+                    } else {
+                        val entries =
+                            playerList.entries.joinToString("\n") { entry ->
+                                "- **${entry.name}** (`${entry.identifier.value}`)"
+                            }
+                        "📝 **Whitelist for ${server.name}** (${playerList.entries.size} entries):\n$entries"
+                    }
+                }) { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        "📝 **Whitelist** is not supported for **${server.name}**"
+                    } else {
+                        raise(error)
+                    }
                 }
             }
 
@@ -312,8 +334,16 @@ class DiscordCommandRegistry(
                     interaction.getStringParameter("player")
                         ?: return "❌ Please specify a player name or ID"
                 val identifier = PlayerIdentifier.create(player).bind()
-                playerUseCases.addToWhitelist(server.id, identifier).bind()
-                "✅ Added **$player** to whitelist on **${server.name}**"
+                recover({
+                    playerUseCases.addToWhitelist(server.id, identifier).bind()
+                    "✅ Added **$player** to whitelist on **${server.name}**"
+                }) { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        "📝 **Whitelist** is not supported for **${server.name}**"
+                    } else {
+                        raise(error)
+                    }
+                }
             }
 
             "remove" -> {
@@ -321,8 +351,16 @@ class DiscordCommandRegistry(
                     interaction.getStringParameter("player")
                         ?: return "❌ Please specify a player name or ID"
                 val identifier = PlayerIdentifier.create(player).bind()
-                playerUseCases.removeFromWhitelist(server.id, identifier).bind()
-                "➖ Removed **$player** from whitelist on **${server.name}**"
+                recover({
+                    playerUseCases.removeFromWhitelist(server.id, identifier).bind()
+                    "➖ Removed **$player** from whitelist on **${server.name}**"
+                }) { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        "📝 **Whitelist** is not supported for **${server.name}**"
+                    } else {
+                        raise(error)
+                    }
+                }
             }
 
             else -> {
@@ -339,15 +377,23 @@ class DiscordCommandRegistry(
 
         return when (subcommand) {
             "list" -> {
-                val playerList = playerUseCases.getBanlist(server.id).bind()
-                if (playerList.entries.isEmpty()) {
-                    "🔨 **Banlist for ${server.name}:** Empty"
-                } else {
-                    val entries =
-                        playerList.entries.joinToString("\n") { entry ->
-                            "- **${entry.name}** (`${entry.identifier.value}`)"
-                        }
-                    "🔨 **Banlist for ${server.name}** (${playerList.entries.size} entries):\n$entries"
+                recover({
+                    val playerList = playerUseCases.getBanlist(server.id).bind()
+                    if (playerList.entries.isEmpty()) {
+                        "🔨 **Banlist for ${server.name}:** Empty"
+                    } else {
+                        val entries =
+                            playerList.entries.joinToString("\n") { entry ->
+                                "- **${entry.name}** (`${entry.identifier.value}`)"
+                            }
+                        "🔨 **Banlist for ${server.name}** (${playerList.entries.size} entries):\n$entries"
+                    }
+                }) { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        "🔨 **Banlist** is not supported for **${server.name}**"
+                    } else {
+                        raise(error)
+                    }
                 }
             }
 
@@ -356,8 +402,16 @@ class DiscordCommandRegistry(
                     interaction.getStringParameter("player")
                         ?: return "❌ Please specify a player name or ID"
                 val identifier = PlayerIdentifier.create(player).bind()
-                playerUseCases.addToBanlist(server.id, identifier).bind()
-                "🔨 Banned **$player** on **${server.name}**"
+                recover({
+                    playerUseCases.addToBanlist(server.id, identifier).bind()
+                    "🔨 Banned **$player** on **${server.name}**"
+                }) { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        "🔨 **Banlist** is not supported for **${server.name}**"
+                    } else {
+                        raise(error)
+                    }
+                }
             }
 
             "remove" -> {
@@ -365,8 +419,16 @@ class DiscordCommandRegistry(
                     interaction.getStringParameter("player")
                         ?: return "❌ Please specify a player name or ID"
                 val identifier = PlayerIdentifier.create(player).bind()
-                playerUseCases.removeFromBanlist(server.id, identifier).bind()
-                "🔓 Unbanned **$player** on **${server.name}**"
+                recover({
+                    playerUseCases.removeFromBanlist(server.id, identifier).bind()
+                    "🔓 Unbanned **$player** on **${server.name}**"
+                }) { error ->
+                    if (error is UseCaseError.Player<*> && error.error is PlayerFailure.OperationFailed) {
+                        "🔨 **Banlist** is not supported for **${server.name}**"
+                    } else {
+                        raise(error)
+                    }
+                }
             }
 
             else -> {
